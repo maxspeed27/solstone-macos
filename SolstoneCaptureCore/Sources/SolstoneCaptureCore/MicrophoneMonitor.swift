@@ -130,6 +130,11 @@ public final class MicrophoneMonitor: @unchecked Sendable {
             let sampleRate = getDeviceSampleRate(deviceID: deviceID) ?? 48000.0
             let transportType = getDeviceTransportType(deviceID: deviceID)
 
+            // Skip iPhone Continuity Camera devices — they drain iPhone battery
+            if transportType == .continuityWired || transportType == .continuityWireless {
+                return nil
+            }
+
             return AudioInputDevice(
                 id: deviceID,
                 name: name,

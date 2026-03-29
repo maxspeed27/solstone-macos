@@ -8,10 +8,10 @@ public final class StorageManager: Sendable {
     /// Base directory for all captures
     public let baseDirectory: URL
 
-    /// Date formatter for directory names (YYYY-MM-DD)
+    /// Date formatter for directory names (YYYYMMDD)
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.dateFormat = "yyyyMMdd"
         return formatter
     }()
 
@@ -23,9 +23,13 @@ public final class StorageManager: Sendable {
     }()
 
     public init() {
-        // ~/Library/Application Support/Solstone/captures/
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        self.baseDirectory = appSupport.appendingPathComponent("Solstone/captures", isDirectory: true)
+        // Use JOURNAL_PATH env var if set, otherwise ~/Documents/solstone-journal/
+        if let journalPath = ProcessInfo.processInfo.environment["JOURNAL_PATH"] {
+            self.baseDirectory = URL(fileURLWithPath: journalPath, isDirectory: true)
+        } else {
+            let home = FileManager.default.homeDirectoryForCurrentUser
+            self.baseDirectory = home.appendingPathComponent("Documents/solstone-journal", isDirectory: true)
+        }
     }
 
     /// Creates the base directory if it doesn't exist
